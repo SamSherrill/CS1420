@@ -1,4 +1,4 @@
-# Sep 30, 2025 session
+# Sep 30 and Oct 2, 2025 class sessions
 
 # d1 = {"name":"Alice", "age":30, "city":"New York", "grade":[95,99,92]}
 
