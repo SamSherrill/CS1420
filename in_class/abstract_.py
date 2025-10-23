@@ -44,3 +44,8 @@ print(f"Square area: {s.area()}")  # Output: 16
 c = Circle(2)
 print(c)
 print(f"Circle area: {c.area()}")  # Output: 12.566370614359172
+
+print(isinstance(t, Shape))  # True
+print(isinstance(t, Triangle))  # True
+print(isinstance(t, Circle))  # False
+print(issubclass(Triangle, Shape))  # True
