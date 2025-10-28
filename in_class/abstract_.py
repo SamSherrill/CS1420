@@ -30,6 +30,10 @@ class Circle(Shape):
         self.radius = radius
     def area(self):
         return math.pi * self.radius * self.radius
+    def __add__(self, other):
+        if isinstance(other, Circle):
+            new_radius = self.radius + other.radius
+            return Circle(new_radius)
     def __str__(self):
         return f"Circle (radius={self.radius})"
 
@@ -59,18 +63,22 @@ class Dog:
         return f"Dog (name={self.name})"
 
 def main():
-    t = Triangle(3,5)
-    s = Square(4)
-    c = Circle(2)
-    d = Dog("Rex")
-    items = []
-    items.append(t)
-    items.append(s)
-    items.append(c)
-    items.append(d)
-    for i in items:
-        if isinstance(i, Shape):
-            print(f"{i} has area {i.area()}")
+    # t = Triangle(3,5)
+    # s = Square(4)
+    c1 = Circle(2)
+    c2 = Circle(3)
+    c3 = c1 + c2
+    print(type(c3))
+    print(c3)
+    # d = Dog("Rex")
+    # items = []
+    # items.append(t)
+    # items.append(s)
+    # items.append(c)
+    # items.append(d)
+    # for i in items:
+    #     if isinstance(i, Shape):
+    #         print(f"{i} has area {i.area()}")
 
 if __name__ == "__main__":
     main()
