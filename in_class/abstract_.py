@@ -1,4 +1,4 @@
-# 10//23/25 class
+# 10//23/25 class, more added on 10/28/25 to discuss polymorphism
 
 import math
 
@@ -33,19 +33,44 @@ class Circle(Shape):
     def __str__(self):
         return f"Circle (radius={self.radius})"
 
-t = Triangle(3,5)
-print(t)
-print(f"Triangle area: {t.area()}")  # Output: 7.5
+# t = Triangle(3,5)
+# print(t)
+# print(f"Triangle area: {t.area()}")  # Output: 7.5
 
-s = Square(4)
-print(s)
-print(f"Square area: {s.area()}")  # Output: 16
+# s = Square(4)
+# print(s)
+# print(f"Square area: {s.area()}")  # Output: 16
 
-c = Circle(2)
-print(c)
-print(f"Circle area: {c.area()}")  # Output: 12.566370614359172
+# c = Circle(2)
+# print(c)
+# print(f"Circle area: {c.area()}")  # Output: 12.566370614359172
 
-print(isinstance(t, Shape))  # True
-print(isinstance(t, Triangle))  # True
-print(isinstance(t, Circle))  # False
-print(issubclass(Triangle, Shape))  # True
+# print(isinstance(t, Shape))  # True
+# print(isinstance(t, Triangle))  # True
+# print(isinstance(t, Circle))  # False
+# print(issubclass(Triangle, Shape))  # True
+
+""" We're starting to discuss polymorphism and abstract base classes."""
+
+class Dog:
+    def __init__(self,name):
+        self.name = name
+    def __str__(self):
+        return f"Dog (name={self.name})"
+
+def main():
+    t = Triangle(3,5)
+    s = Square(4)
+    c = Circle(2)
+    d = Dog("Rex")
+    items = []
+    items.append(t)
+    items.append(s)
+    items.append(c)
+    items.append(d)
+    for i in items:
+        if isinstance(i, Shape):
+            print(f"{i} has area {i.area()}")
+
+if __name__ == "__main__":
+    main()
