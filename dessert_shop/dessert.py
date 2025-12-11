@@ -111,3 +111,24 @@ class Sundae(IceCream):
 
 
 __all__ = ["DessertItem", "Candy", "Cookie", "IceCream", "Sundae"]
+
+
+class Order:
+    """Order is a container for DessertItem objects.
+
+    Attributes
+    ----------
+    order: list
+        List of DessertItem instances.
+    """
+
+    def __init__(self) -> None:
+        self.order: list[DessertItem] = []
+
+    def add(self, item: DessertItem) -> None:
+        """Add a DessertItem to the order."""
+        self.order.append(item)
+
+    def __len__(self) -> int:
+        """Return the number of items in the order."""
+        return len(self.order)
