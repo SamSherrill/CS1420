@@ -1,101 +1,96 @@
 """dessert.py
 
-Module providing DessertItem class hierarchy for the Dessert Shop project (Part 1).
+Abstract DessertItem hierarchy for Dessert Shop project.
 
-Classes:
- - DessertItem (superclass)
- - Candy (inherits DessertItem)
- - Cookie (inherits DessertItem)
- - IceCream (inherits DessertItem)
- - Sundae (inherits IceCream)
-
-Each subclass defines attributes and a constructor that initializes all
-attributes and calls the superclass constructor as required by the assignment.
+This module implements an abstract base class `DessertItem` with a
+`tax_percent` attribute and abstract `calculate_cost` method. Concrete
+subclasses implement cost calculation and inherit `calculate_tax` which
+computes tax from the cost and `tax_percent`.
 """
 
 from __future__ import annotations
 
+from abc import ABC, abstractmethod
+from typing import List
+from decimal import Decimal, ROUND_HALF_UP
 
-class DessertItem:
-    """Superclass for dessert shop items.
+
+class DessertItem(ABC):
+    """Abstract base class for dessert items.
 
     Attributes
     ----------
     name: str
-        The name of the dessert item (default empty string).
+        Name of the dessert item (default empty string)
+    tax_percent: float
+        Sales tax percent to apply to the item (default 7.25)
     """
+
+    tax_percent: float = 7.25
 
     def __init__(self, name: str = "") -> None:
         self.name: str = name
+        # instance-level copy so tests/instances can override if needed
+        self.tax_percent = float(self.tax_percent)
+
+    @abstractmethod
+    def calculate_cost(self) -> float:
+        """Return the cost (dollars) for this item. Implemented by subclasses."""
+
+    def calculate_tax(self) -> float:
+        """Return the tax for this item (rounded to 2 decimals)."""
+        # use Decimal with ROUND_HALF_UP to match expected monetary rounding
+        cost_decimal = Decimal(str(self.calculate_cost()))
+        tax_decimal = cost_decimal * (Decimal(str(self.tax_percent)) / Decimal("100"))
+        tax_rounded = tax_decimal.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+        return float(tax_rounded)
 
 
 class Candy(DessertItem):
-    """Candy sold by the pound.
-
-    Attributes
-    ----------
-    candy_weight: float
-        Weight in pounds (default 0.0)
-    price_per_pound: float
-        Price per pound (default 0.0)
-    """
+    """Candy sold by the pound."""
 
     def __init__(
         self, name: str = "", candy_weight: float = 0.0, price_per_pound: float = 0.0
     ) -> None:
         super().__init__(name)
-        self.candy_weight: float = candy_weight
-        self.price_per_pound: float = price_per_pound
+        self.candy_weight: float = float(candy_weight)
+        self.price_per_pound: float = float(price_per_pound)
+
+    def calculate_cost(self) -> float:
+        return round(self.candy_weight * self.price_per_pound, 2)
 
 
 class Cookie(DessertItem):
-    """Cookie sold by the dozen.
-
-    Attributes
-    ----------
-    cookie_quantity: int
-        Quantity (number of cookies) (default 0)
-    price_per_dozen: float
-        Price per dozen (default 0.0)
-    """
+    """Cookie sold by the dozen."""
 
     def __init__(
         self, name: str = "", cookie_quantity: int = 0, price_per_dozen: float = 0.0
     ) -> None:
         super().__init__(name)
-        self.cookie_quantity: int = cookie_quantity
-        self.price_per_dozen: float = price_per_dozen
+        self.cookie_quantity: int = int(cookie_quantity)
+        self.price_per_dozen: float = float(price_per_dozen)
+
+    def calculate_cost(self) -> float:
+        dozens = float(self.cookie_quantity) / 12.0
+        return round(dozens * self.price_per_dozen, 2)
 
 
 class IceCream(DessertItem):
-    """Ice cream sold by the scoop.
-
-    Attributes
-    ----------
-    scoop_count: int
-        Number of scoops (default 0)
-    price_per_scoop: float
-        Price per scoop (default 0.0)
-    """
+    """Ice cream sold by the scoop."""
 
     def __init__(
         self, name: str = "", scoop_count: int = 0, price_per_scoop: float = 0.0
     ) -> None:
         super().__init__(name)
-        self.scoop_count: int = scoop_count
-        self.price_per_scoop: float = price_per_scoop
+        self.scoop_count: int = int(scoop_count)
+        self.price_per_scoop: float = float(price_per_scoop)
+
+    def calculate_cost(self) -> float:
+        return round(self.scoop_count * self.price_per_scoop, 2)
 
 
 class Sundae(IceCream):
-    """Sundae: ice cream with a topping.
-
-    Attributes
-    ----------
-    topping_name: str
-        Name of the topping (default empty string)
-    topping_price: float
-        Price of the topping (default 0.0)
-    """
+    """Sundae: ice cream with a topping."""
 
     def __init__(
         self,
@@ -107,28 +102,30 @@ class Sundae(IceCream):
     ) -> None:
         super().__init__(name, scoop_count, price_per_scoop)
         self.topping_name: str = topping_name
-        self.topping_price: float = topping_price
+        self.topping_price: float = float(topping_price)
 
-
-__all__ = ["DessertItem", "Candy", "Cookie", "IceCream", "Sundae"]
+    def calculate_cost(self) -> float:
+        ice_cost = super().calculate_cost()
+        return round(ice_cost + self.topping_price, 2)
 
 
 class Order:
-    """Order is a container for DessertItem objects.
-
-    Attributes
-    ----------
-    order: list
-        List of DessertItem instances.
-    """
+    """Order container for DessertItem instances."""
 
     def __init__(self) -> None:
-        self.order: list[DessertItem] = []
+        self.order: List[DessertItem] = []
 
     def add(self, item: DessertItem) -> None:
-        """Add a DessertItem to the order."""
         self.order.append(item)
 
     def __len__(self) -> int:
-        """Return the number of items in the order."""
         return len(self.order)
+
+    def order_cost(self) -> float:
+        return round(sum(item.calculate_cost() for item in self.order), 2)
+
+    def order_tax(self) -> float:
+        return round(sum(item.calculate_tax() for item in self.order), 2)
+
+
+__all__ = ["DessertItem", "Candy", "Cookie", "IceCream", "Sundae", "Order"]

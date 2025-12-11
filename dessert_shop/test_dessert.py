@@ -14,20 +14,16 @@ except Exception:  # pragma: no cover - fallback for running tests from package 
     import dessert as ds
 
 
-def test_dessertitem_defaults() -> None:
-    d = ds.DessertItem()
-    assert d.name == ""
-
-
-def test_dessertitem_provided() -> None:
-    d = ds.DessertItem("Donut")
-    assert d.name == "Donut"
-
-
-def test_dessertitem_updated() -> None:
-    d = ds.DessertItem()
-    d.name = "Cake"
-    assert d.name == "Cake"
+def test_dessertitem_tax_and_instance() -> None:
+    # DessertItem is abstract; test via concrete subclass (Candy)
+    c = ds.Candy("Candy Corn", 1.5, 0.25)
+    # default tax_percent should be present and default to 7.25
+    assert hasattr(c, "tax_percent")
+    assert float(c.tax_percent) == 7.25
+    # calculate_tax should use calculate_cost and tax_percent
+    cost = c.calculate_cost()
+    tax = c.calculate_tax()
+    assert tax == round(cost * (c.tax_percent / 100.0), 2)
 
 
 def test_candy_defaults() -> None:
