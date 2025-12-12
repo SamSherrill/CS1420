@@ -2,8 +2,9 @@
 
 Abstract DessertItem hierarchy for Dessert Shop project.
 
-Part 7: This module implements an abstract base class `DessertItem` that
-inherits from the Packaging Protocol. It has a `tax_percent` attribute and
+Part 8: This module implements an abstract base class `DessertItem` that
+inherits from the Packaging Protocol. The Order class implements the Payable
+Protocol to track payment methods. It has a `tax_percent` attribute and
 abstract `calculate_cost` method. Concrete subclasses implement cost
 calculation, set their packaging type, and inherit `calculate_tax` which
 computes tax from the cost and `tax_percent`.
@@ -15,6 +16,7 @@ from abc import ABC, abstractmethod
 from typing import List
 from decimal import Decimal, ROUND_HALF_UP
 from packaging import Packaging
+from payment import PayType, Payable
 
 
 class DessertItem(ABC, Packaging):
@@ -138,11 +140,15 @@ class Sundae(IceCream):
         return f"{self.topping_name} {self.name} Sundae ({self.packaging})\n-    {self.scoop_count} scoops. @ ${self.price_per_scoop:.2f}/scoop\n-    {self.topping_name} topping @ ${self.topping_price:.2f}:, ${cost:.2f}, [Tax: ${tax:.2f}]"
 
 
-class Order:
-    """Order container for DessertItem instances."""
+class Order(Payable):
+    """Order container for DessertItem instances.
+
+    Implements Payable interface for payment method tracking.
+    """
 
     def __init__(self) -> None:
         self.order: List[DessertItem] = []
+        self._pay_type: PayType = PayType.CASH
 
     def add(self, item: DessertItem) -> None:
         self.order.append(item)
@@ -155,6 +161,40 @@ class Order:
 
     def order_tax(self) -> float:
         return round(sum(item.calculate_tax() for item in self.order), 2)
+
+    def get_pay_type(self) -> PayType:
+        """Return the payment type for this order.
+
+        Returns
+        -------
+        PayType
+            The payment type for this order
+
+        Raises
+        ------
+        ValueError
+            If the stored payment type is not a valid PayType
+        """
+        if not isinstance(self._pay_type, PayType):
+            raise ValueError(f"Invalid payment type: {self._pay_type}")
+        return self._pay_type
+
+    def set_pay_type(self, payment_method: PayType) -> None:
+        """Set the payment type for this order.
+
+        Parameters
+        ----------
+        payment_method : PayType
+            The payment method to use
+
+        Raises
+        ------
+        ValueError
+            If payment_method is not a valid PayType
+        """
+        if not isinstance(payment_method, PayType):
+            raise ValueError(f"Invalid payment type: {payment_method}")
+        self._pay_type = payment_method
 
     def __str__(self) -> str:
         """Return string representation of the order with header and items."""
@@ -179,6 +219,8 @@ class Order:
 
         lines.append(f"Order Subtotals:, ${subtotal:.2f}, [Tax: ${display_tax:.2f}]")
         lines.append(f"Order Total:, , ${total:.2f}")
+        lines.append("--------------------")
+        lines.append(f"Paid with {self.get_pay_type().value}")
 
         return "\n".join(lines)
 

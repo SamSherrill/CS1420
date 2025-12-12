@@ -1,6 +1,6 @@
 """Application driver for the Dessert Shop.
 
-Part 7: Adding Packaging Protocol (mixin interface) to dessert items.
+Part 8: Adding payment method functionality with Payable Protocol.
 """
 
 from __future__ import annotations
@@ -9,8 +9,10 @@ from tabulate import tabulate
 
 try:
     from dessert_shop.dessert import Candy, Cookie, IceCream, Sundae, Order
+    from dessert_shop.payment import PayType
 except Exception:  # pragma: no cover - allow running as script from package dir
     from dessert import Candy, Cookie, IceCream, Sundae, Order
+    from payment import PayType
 
 
 class DessertShop:
@@ -132,6 +134,36 @@ class DessertShop:
 
         return Sundae(name, scoops, price, topping_name, topping_price)
 
+    def user_prompt_payment(self) -> PayType:
+        """Prompt user for payment type, validate, and return a PayType.
+
+        Returns
+        -------
+        PayType
+            The selected payment type (CASH, CARD, or PHONE)
+        """
+        prompt = "\n".join(
+            [
+                "",
+                "1: CASH",
+                "2: CARD",
+                "3: PHONE",
+                "Enter payment method: ",
+            ]
+        )
+
+        while True:
+            choice = input(prompt)
+            match choice:
+                case "1":
+                    return PayType.CASH
+                case "2":
+                    return PayType.CARD
+                case "3":
+                    return PayType.PHONE
+                case _:
+                    print("Invalid payment method. Please enter 1, 2, or 3.")
+
 
 def main():
     shop = DessertShop()
@@ -183,6 +215,10 @@ def main():
                     "Invalid response:  Please enter a choice from the menu (1-4) or Enter"
                 )
     print()
+
+    # Prompt for payment method
+    payment_type = shop.user_prompt_payment()
+    order.set_pay_type(payment_type)
 
     # Print receipt using tabulate with order.to_list()
     print(tabulate(order.to_list(), tablefmt="fancy_grid"))
