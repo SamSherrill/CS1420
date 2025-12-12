@@ -1,0 +1,64 @@
+﻿Final Project Design: "To Done" CLI
+Project Title: To Done: A Productivity CLI Developer: [Your Name] Course: CS 1420
+1. Project Overview
+"To Done" is a command-line productivity application designed to help users manage tasks effectively. It allows users to create, view, complete, and delete tasks categorized by "Focus Areas." The application ensures data persistence by saving the task list to a JSON file upon exit and reloading it upon startup. This project demonstrates mastery of Python concepts including OOP, collections, loops, conditionals, and file I/O.
+2. User Interface Design (CLI)
+The application will interact with the user through a text-based menu loop. Below is a mockup of the proposed interface and user flow.
+Main Menu:
+Plaintext
+=== TO DONE: Focus on What Matters ===
+1. Add a New Task
+2. View Tasks
+3. Complete a Task
+4. Delete a Task
+5. Exit (Save & Quit)
+======================================
+Enter your choice (1-5):
+
+
+Interaction Examples:
+* Adding a Task: Enter task description: Finish CS 1420 Final Project Enter Focus Area (e.g., School, Work, Personal): School > Task added successfully!
+Viewing Tasks:
+Plaintext
+--- Current Tasks ---
+1. [ ] Finish CS 1420 Final Project (School)
+2. [X] Email Professor (School)
+3. [ ] Buy Groceries (Personal)
+
+
+
+
+3. Technical Design & Class Structure
+The system will be built using two primary classes to ensure separation of concerns and clean OOP design.
+A. Class: Task
+* Responsibility: Represents a single unit of work.
+* Attributes:
+   * self.title (string): The description of the task.
+   * self.focus_area (string): The category of the task.
+   * self.is_complete (boolean): The status of the task (default False).
+* Methods:
+   * __init__(self, title, focus_area): Constructor to initialize attributes.
+   * mark_complete(self): Sets is_complete to True.
+   * __str__(self): Returns a formatted string for display (e.g., "[ ] Title (Area)").
+   * to_dict(self): Helper method to convert the object to a dictionary for JSON serialization.
+B. Class: TaskManager
+* Responsibility: Manages the collection of tasks and handles business logic.
+* Attributes:
+   * self.tasks (List): A list storing Task objects.
+   * self.filename (string): The name of the JSON file for persistence (e.g., tasks.json).
+* Methods:
+   * __init__(self): Initializes the list and triggers load_from_file().
+   * add_task(self, title, focus_area): Creates a new Task object and appends it to self.tasks.
+   * get_tasks(self): Returns the list of tasks for display.
+   * complete_task(self, index): Marks the task at the specific index as complete.
+   * delete_task(self, index): Removes the task at the specific index from the list.
+   * save_to_file(self): Serializes self.tasks into JSON format and writes to self.filename.
+   * load_from_file(self): Reads self.filename, deserializes JSON data, and repopulates self.tasks with Task objects.
+4. Implementation Logic (Rubric Mapping)
+* Loops: A while loop in the main() function will keep the application running until the user selects "Exit." for loops will be used in TaskManager to iterate through the list of tasks for display and saving.
+* Conditionals: if/elif/else blocks will handle the user's menu selection (1-5) and validate input (e.g., checking if a task index exists before trying to delete it).
+* Collections: A Python List is the primary data structure for holding Task objects.
+* Persistence: The json module will be used. The save_to_file method will convert the list of custom Task objects into a list of built-in dictionaries (using the to_dict helper) so they can be serialized to JSON.
+5. Future Enhancements (Stretch Goals)
+* Filter by Focus Area: Allow the user to view tasks only from a specific category.
+* Due Dates: Add a date attribute to tasks and sort the view by urgency.
