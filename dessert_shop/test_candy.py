@@ -34,3 +34,8 @@ def test_candy_calculate_cost_and_tax():
     assert c.calculate_cost() == 0.38
     # tax = round(0.38 * 0.0725, 2) = 0.03
     assert c.calculate_tax() == 0.03
+
+
+def test_candy_packaging():
+    c = ds.Candy("Candy Corn", 1.5, 0.25)
+    assert c.packaging == "Bag"

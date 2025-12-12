@@ -34,3 +34,8 @@ def test_cookie_calculate_cost_and_tax():
     assert k.calculate_cost() == 2.0
     # tax = round(2.0 * 0.0725, 2) = 0.15
     assert k.calculate_tax() == 0.15
+
+
+def test_cookie_packaging():
+    k = ds.Cookie("ChocChip", 12, 3.99)
+    assert k.packaging == "Box"

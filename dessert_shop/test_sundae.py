@@ -42,3 +42,8 @@ def test_sundae_calculate_cost_and_tax():
     assert s.calculate_cost() == 3.36
     # tax = round(3.36 * 0.0725, 2) = 0.24
     assert s.calculate_tax() == 0.24
+
+
+def test_sundae_packaging():
+    s = ds.Sundae("Strawberry", 2, 1.0, "Sprinkles", 0.25)
+    assert s.packaging == "Boat"

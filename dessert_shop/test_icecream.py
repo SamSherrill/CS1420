@@ -34,3 +34,8 @@ def test_icecream_calculate_cost_and_tax():
     assert i.calculate_cost() == 1.58
     # tax = round(1.58 * 0.0725, 2) = 0.11
     assert i.calculate_tax() == 0.11
+
+
+def test_icecream_packaging():
+    i = ds.IceCream("Vanilla", 2, 1.25)
+    assert i.packaging == "Bowl"

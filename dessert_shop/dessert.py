@@ -2,9 +2,10 @@
 
 Abstract DessertItem hierarchy for Dessert Shop project.
 
-This module implements an abstract base class `DessertItem` with a
-`tax_percent` attribute and abstract `calculate_cost` method. Concrete
-subclasses implement cost calculation and inherit `calculate_tax` which
+Part 7: This module implements an abstract base class `DessertItem` that
+inherits from the Packaging Protocol. It has a `tax_percent` attribute and
+abstract `calculate_cost` method. Concrete subclasses implement cost
+calculation, set their packaging type, and inherit `calculate_tax` which
 computes tax from the cost and `tax_percent`.
 """
 
@@ -13,9 +14,10 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import List
 from decimal import Decimal, ROUND_HALF_UP
+from packaging import Packaging
 
 
-class DessertItem(ABC):
+class DessertItem(ABC, Packaging):
     """Abstract base class for dessert items.
 
     Attributes
@@ -24,6 +26,8 @@ class DessertItem(ABC):
         Name of the dessert item (default empty string)
     tax_percent: float
         Sales tax percent to apply to the item (default 7.25)
+    packaging: str
+        Type of packaging for the item (default None)
     """
 
     tax_percent: float = 7.25
@@ -32,6 +36,7 @@ class DessertItem(ABC):
         self.name: str = name
         # instance-level copy so tests/instances can override if needed
         self.tax_percent = float(self.tax_percent)
+        self.packaging: str = None
 
     @abstractmethod
     def calculate_cost(self) -> float:
@@ -55,6 +60,7 @@ class Candy(DessertItem):
         super().__init__(name)
         self.candy_weight: float = float(candy_weight)
         self.price_per_pound: float = float(price_per_pound)
+        self.packaging = "Bag"
 
     def calculate_cost(self) -> float:
         return round(self.candy_weight * self.price_per_pound, 2)
@@ -62,7 +68,7 @@ class Candy(DessertItem):
     def __str__(self) -> str:
         cost = self.calculate_cost()
         tax = self.calculate_tax()
-        return f"{self.name}\n-    {self.candy_weight} lbs. @ ${self.price_per_pound:.2f}/lb:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+        return f"{self.name} ({self.packaging})\n-    {self.candy_weight} lbs. @ ${self.price_per_pound:.2f}/lb:, ${cost:.2f}, [Tax: ${tax:.2f}]"
 
 
 class Cookie(DessertItem):
@@ -74,6 +80,7 @@ class Cookie(DessertItem):
         super().__init__(name)
         self.cookie_quantity: int = int(cookie_quantity)
         self.price_per_dozen: float = float(price_per_dozen)
+        self.packaging = "Box"
 
     def calculate_cost(self) -> float:
         dozens = float(self.cookie_quantity) / 12.0
@@ -82,7 +89,7 @@ class Cookie(DessertItem):
     def __str__(self) -> str:
         cost = self.calculate_cost()
         tax = self.calculate_tax()
-        return f"{self.name} Cookies\n-    {self.cookie_quantity} cookies. @ ${self.price_per_dozen:.2f}/dozen:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+        return f"{self.name} Cookies ({self.packaging})\n-    {self.cookie_quantity} cookies. @ ${self.price_per_dozen:.2f}/dozen:, ${cost:.2f}, [Tax: ${tax:.2f}]"
 
 
 class IceCream(DessertItem):
@@ -94,6 +101,7 @@ class IceCream(DessertItem):
         super().__init__(name)
         self.scoop_count: int = int(scoop_count)
         self.price_per_scoop: float = float(price_per_scoop)
+        self.packaging = "Bowl"
 
     def calculate_cost(self) -> float:
         return round(self.scoop_count * self.price_per_scoop, 2)
@@ -101,7 +109,7 @@ class IceCream(DessertItem):
     def __str__(self) -> str:
         cost = self.calculate_cost()
         tax = self.calculate_tax()
-        return f"{self.name} Ice Cream\n-    {self.scoop_count} scoops. @ ${self.price_per_scoop:.2f}/scoop:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+        return f"{self.name} Ice Cream ({self.packaging})\n-    {self.scoop_count} scoops. @ ${self.price_per_scoop:.2f}/scoop:, ${cost:.2f}, [Tax: ${tax:.2f}]"
 
 
 class Sundae(IceCream):
@@ -118,6 +126,7 @@ class Sundae(IceCream):
         super().__init__(name, scoop_count, price_per_scoop)
         self.topping_name: str = topping_name
         self.topping_price: float = float(topping_price)
+        self.packaging = "Boat"
 
     def calculate_cost(self) -> float:
         ice_cost = super().calculate_cost()
@@ -126,7 +135,7 @@ class Sundae(IceCream):
     def __str__(self) -> str:
         cost = self.calculate_cost()
         tax = self.calculate_tax()
-        return f"{self.topping_name} {self.name} Sundae\n-    {self.scoop_count} scoops. @ ${self.price_per_scoop:.2f}/scoop\n-    {self.topping_name} topping @ ${self.topping_price:.2f}:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+        return f"{self.topping_name} {self.name} Sundae ({self.packaging})\n-    {self.scoop_count} scoops. @ ${self.price_per_scoop:.2f}/scoop\n-    {self.topping_name} topping @ ${self.topping_price:.2f}:, ${cost:.2f}, [Tax: ${tax:.2f}]"
 
 
 class Order:

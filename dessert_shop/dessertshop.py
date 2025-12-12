@@ -1,6 +1,6 @@
 """Application driver for the Dessert Shop.
 
-Part 6: Overriding __str__ method for all dessert items and Order.
+Part 7: Adding Packaging Protocol (mixin interface) to dessert items.
 """
 
 from __future__ import annotations
