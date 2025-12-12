@@ -3,6 +3,8 @@ try:
 except Exception:  # pragma: no cover
     import dessert as ds
 
+import pytest
+
 
 def test_cookie_defaults():
     k = ds.Cookie()
@@ -39,3 +41,49 @@ def test_cookie_calculate_cost_and_tax():
 def test_cookie_packaging():
     k = ds.Cookie("ChocChip", 12, 3.99)
     assert k.packaging == "Box"
+
+
+def test_cookie_can_combine_true():
+    """Test that can_combine returns True for cookies with same name and price per dozen."""
+    cookie1 = ds.Cookie("Chocolate Chip", 6, 3.99)
+    cookie2 = ds.Cookie("Chocolate Chip", 12, 3.99)
+    assert cookie1.can_combine(cookie2) is True
+
+
+def test_cookie_can_combine_false_different_price():
+    """Test that can_combine returns False for cookies with same name but different price."""
+    cookie1 = ds.Cookie("Chocolate Chip", 6, 3.99)
+    cookie2 = ds.Cookie("Chocolate Chip", 12, 4.99)
+    assert cookie1.can_combine(cookie2) is False
+
+
+def test_cookie_can_combine_false_different_name():
+    """Test that can_combine returns False for cookies with different names but same price."""
+    cookie1 = ds.Cookie("Chocolate Chip", 6, 3.99)
+    cookie2 = ds.Cookie("Oatmeal Raisin", 12, 3.99)
+    assert cookie1.can_combine(cookie2) is False
+
+
+def test_cookie_can_combine_false_not_cookie():
+    """Test that can_combine returns False when other item is not a Cookie."""
+    cookie = ds.Cookie("Chocolate Chip", 6, 3.99)
+    candy = ds.Candy("Gummy Bears", 0.5, 0.25)
+    assert cookie.can_combine(candy) is False
+
+
+def test_cookie_combine_success():
+    """Test that combine correctly combines two Cookie items."""
+    cookie1 = ds.Cookie("Chocolate Chip", 6, 3.99)
+    cookie2 = ds.Cookie("Chocolate Chip", 12, 3.99)
+    result = cookie1.combine(cookie2)
+    assert result is cookie1  # Returns self
+    assert cookie1.cookie_quantity == 18  # 6 + 12
+    assert cookie1.calculate_cost() == 5.99  # 18/12 * 3.99 = 5.985 rounded to 5.99
+
+
+def test_cookie_combine_type_error():
+    """Test that combine raises TypeError when other item is not a Cookie."""
+    cookie = ds.Cookie("Chocolate Chip", 6, 3.99)
+    candy = ds.Candy("Gummy Bears", 0.5, 0.25)
+    with pytest.raises(TypeError):
+        cookie.combine(candy)

@@ -2,13 +2,15 @@
 
 Abstract DessertItem hierarchy for Dessert Shop project.
 
-Part 9: This module implements an abstract base class `DessertItem` that
+Part 10: This module implements an abstract base class `DessertItem` that
 inherits from the Packaging Protocol. DessertItem implements comparison
 operators to enable sorting by cost. The Order class implements the Payable
-Protocol to track payment methods and includes a sort() method. It has a
-`tax_percent` attribute and abstract `calculate_cost` method. Concrete
-subclasses implement cost calculation, set their packaging type, and inherit
-`calculate_tax` which computes tax from the cost and `tax_percent`.
+Protocol to track payment methods and includes a sort() method. Candy and
+Cookie classes implement the Combinable Protocol to allow combining like items.
+Order is iterable via __iter__() and __next__(). It has a `tax_percent`
+attribute and abstract `calculate_cost` method. Concrete subclasses implement
+cost calculation, set their packaging type, and inherit `calculate_tax` which
+computes tax from the cost and `tax_percent`.
 """
 
 from __future__ import annotations
@@ -18,6 +20,7 @@ from typing import List
 from decimal import Decimal, ROUND_HALF_UP
 from packaging import Packaging
 from payment import PayType, Payable
+from combine import Combinable
 
 
 class DessertItem(ABC, Packaging):
@@ -109,6 +112,48 @@ class Candy(DessertItem):
         tax = self.calculate_tax()
         return f"{self.name} ({self.packaging})\n-    {self.candy_weight} lbs. @ ${self.price_per_pound:.2f}/lb:, ${cost:.2f}, [Tax: ${tax:.2f}]"
 
+    def can_combine(self, other: "Candy") -> bool:
+        """Check if this candy can be combined with another candy.
+
+        Parameters
+        ----------
+        other : Candy
+            The other candy to check for compatibility
+
+        Returns
+        -------
+        bool
+            True if both are Candy instances with same name and price per pound
+        """
+        return (
+            isinstance(other, Candy)
+            and self.name == other.name
+            and self.price_per_pound == other.price_per_pound
+        )
+
+    def combine(self, other: "Candy") -> "Candy":
+        """Combine this candy with another candy by adding weights.
+
+        Parameters
+        ----------
+        other : Candy
+            The other candy to combine with this one
+
+        Returns
+        -------
+        Candy
+            The modified self after combining
+
+        Raises
+        ------
+        TypeError
+            If other is not a Candy instance
+        """
+        if not isinstance(other, Candy):
+            raise TypeError("Can only combine with another Candy instance")
+        self.candy_weight += other.candy_weight
+        return self
+
 
 class Cookie(DessertItem):
     """Cookie sold by the dozen."""
@@ -129,6 +174,48 @@ class Cookie(DessertItem):
         cost = self.calculate_cost()
         tax = self.calculate_tax()
         return f"{self.name} Cookies ({self.packaging})\n-    {self.cookie_quantity} cookies. @ ${self.price_per_dozen:.2f}/dozen:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+
+    def can_combine(self, other: "Cookie") -> bool:
+        """Check if this cookie can be combined with another cookie.
+
+        Parameters
+        ----------
+        other : Cookie
+            The other cookie to check for compatibility
+
+        Returns
+        -------
+        bool
+            True if both are Cookie instances with same name and price per dozen
+        """
+        return (
+            isinstance(other, Cookie)
+            and self.name == other.name
+            and self.price_per_dozen == other.price_per_dozen
+        )
+
+    def combine(self, other: "Cookie") -> "Cookie":
+        """Combine this cookie with another cookie by adding quantities.
+
+        Parameters
+        ----------
+        other : Cookie
+            The other cookie to combine with this one
+
+        Returns
+        -------
+        Cookie
+            The modified self after combining
+
+        Raises
+        ------
+        TypeError
+            If other is not a Cookie instance
+        """
+        if not isinstance(other, Cookie):
+            raise TypeError("Can only combine with another Cookie instance")
+        self.cookie_quantity += other.cookie_quantity
+        return self
 
 
 class IceCream(DessertItem):
@@ -181,14 +268,70 @@ class Order(Payable):
     """Order container for DessertItem instances.
 
     Implements Payable interface for payment method tracking.
+    Implements iterator protocol via __iter__() and __next__().
+    Combines like items if they implement Combinable protocol.
     """
 
     def __init__(self) -> None:
         self.order: List[DessertItem] = []
         self._pay_type: PayType = PayType.CASH
+        self._current_index: int = 0
 
     def add(self, item: DessertItem) -> None:
+        """Add an item to the order, combining with existing items if possible.
+
+        If the item implements Combinable protocol and can be combined with
+        an existing item in the order, it will be merged. Otherwise, it will
+        be added as a new item.
+
+        Parameters
+        ----------
+        item : DessertItem
+            The item to add to the order
+        """
+        # Check if item is Combinable
+        if isinstance(item, Combinable):
+            # Try to find an existing item to combine with
+            for existing_item in self.order:
+                if isinstance(existing_item, Combinable) and existing_item.can_combine(
+                    item
+                ):
+                    # Combine the new item into the existing one
+                    existing_item.combine(item)
+                    return
+
+        # If not combinable or no match found, add as new item
         self.order.append(item)
+
+    def __iter__(self):
+        """Return an iterator for the order.
+
+        Returns
+        -------
+        Order
+            Self, as Order implements the iterator protocol
+        """
+        self._current_index = 0
+        return self
+
+    def __next__(self) -> DessertItem:
+        """Return the next item in the order.
+
+        Returns
+        -------
+        DessertItem
+            The next item in the order
+
+        Raises
+        ------
+        StopIteration
+            When there are no more items
+        """
+        if self._current_index >= len(self.order):
+            raise StopIteration
+        item = self.order[self._current_index]
+        self._current_index += 1
+        return item
 
     def __len__(self) -> int:
         return len(self.order)
