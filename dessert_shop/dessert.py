@@ -59,6 +59,11 @@ class Candy(DessertItem):
     def calculate_cost(self) -> float:
         return round(self.candy_weight * self.price_per_pound, 2)
 
+    def __str__(self) -> str:
+        cost = self.calculate_cost()
+        tax = self.calculate_tax()
+        return f"{self.name}\n-    {self.candy_weight} lbs. @ ${self.price_per_pound:.2f}/lb:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+
 
 class Cookie(DessertItem):
     """Cookie sold by the dozen."""
@@ -74,6 +79,11 @@ class Cookie(DessertItem):
         dozens = float(self.cookie_quantity) / 12.0
         return round(dozens * self.price_per_dozen, 2)
 
+    def __str__(self) -> str:
+        cost = self.calculate_cost()
+        tax = self.calculate_tax()
+        return f"{self.name} Cookies\n-    {self.cookie_quantity} cookies. @ ${self.price_per_dozen:.2f}/dozen:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+
 
 class IceCream(DessertItem):
     """Ice cream sold by the scoop."""
@@ -87,6 +97,11 @@ class IceCream(DessertItem):
 
     def calculate_cost(self) -> float:
         return round(self.scoop_count * self.price_per_scoop, 2)
+
+    def __str__(self) -> str:
+        cost = self.calculate_cost()
+        tax = self.calculate_tax()
+        return f"{self.name} Ice Cream\n-    {self.scoop_count} scoops. @ ${self.price_per_scoop:.2f}/scoop:, ${cost:.2f}, [Tax: ${tax:.2f}]"
 
 
 class Sundae(IceCream):
@@ -108,6 +123,11 @@ class Sundae(IceCream):
         ice_cost = super().calculate_cost()
         return round(ice_cost + self.topping_price, 2)
 
+    def __str__(self) -> str:
+        cost = self.calculate_cost()
+        tax = self.calculate_tax()
+        return f"{self.topping_name} {self.name} Sundae\n-    {self.scoop_count} scoops. @ ${self.price_per_scoop:.2f}/scoop\n-    {self.topping_name} topping @ ${self.topping_price:.2f}:, ${cost:.2f}, [Tax: ${tax:.2f}]"
+
 
 class Order:
     """Order container for DessertItem instances."""
@@ -126,6 +146,38 @@ class Order:
 
     def order_tax(self) -> float:
         return round(sum(item.calculate_tax() for item in self.order), 2)
+
+    def __str__(self) -> str:
+        """Return string representation of the order with header and items."""
+        lines = []
+        lines.append("Name, Cost, Tax")
+        lines.append("----------, ----------, ----------")
+
+        # Use banker's rounding for display (consistent with Part 5)
+        for item in self.order:
+            lines.append(str(item))
+
+        lines.append("----------, ----------, ----------")
+        lines.append(f"Total number of items in order:, {len(self.order)}")
+
+        subtotal = self.order_cost()
+        # Use banker's rounding for display tax
+        display_tax = sum(
+            round(item.calculate_cost() * (item.tax_percent / 100.0), 2)
+            for item in self.order
+        )
+        total = round(subtotal + display_tax, 2)
+
+        lines.append(f"Order Subtotals:, ${subtotal:.2f}, [Tax: ${display_tax:.2f}]")
+        lines.append(f"Order Total:, , ${total:.2f}")
+
+        return "\n".join(lines)
+
+    def to_list(self) -> List[List[str]]:
+        """Convert the string representation of the order to a 2D list."""
+        order_str = str(self)
+        lines = order_str.split("\n")
+        return [line.split(", ") for line in lines]
 
 
 __all__ = ["DessertItem", "Candy", "Cookie", "IceCream", "Sundae", "Order"]

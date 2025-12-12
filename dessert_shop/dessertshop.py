@@ -1,6 +1,6 @@
 """Application driver for the Dessert Shop.
 
-Part 5: Terminal-based user interface for building orders.
+Part 6: Overriding __str__ method for all dessert items and Order.
 """
 
 from __future__ import annotations
@@ -133,68 +133,59 @@ class DessertShop:
         return Sundae(name, scoops, price, topping_name, topping_price)
 
 
-def print_receipt(order: Order) -> None:
-    """Print the order receipt in tabular format."""
-    rows = []
-    display_tax_total = 0.0
-    for item in order.order:
-        cost = item.calculate_cost()
-        # display uses banker's rounding to match sample receipt
-        display_tax = round(cost * (item.tax_percent / 100.0), 2)
-        display_tax_total += display_tax
-        rows.append([item.name, f"{cost:.2f}", f"{display_tax:.2f}"])
-
-    subtotal = order.order_cost()
-    total = round(subtotal + display_tax_total, 2)
-
-    # Add summary rows
-    rows.append(["Subtotal", f"{subtotal:.2f}", f"{display_tax_total:.2f}"])
-    rows.append(["Total", f"{total:.2f}", ""])
-    rows.append(["Total number of items in order:", f"{len(order)}", ""])
-
-    print(tabulate(rows, headers=["Dessert", "Cost", "Tax"], tablefmt="plain"))
-
-
-def main() -> None:
-    """Main function with UI loop for building orders."""
+def main():
     shop = DessertShop()
     order = Order()
 
-    # Main UI loop
-    while True:
-        print("\n1: Candy")
-        print("2: Cookie")
-        print("3: Ice Cream")
-        print("4: Sundae")
+    # order.add(Candy('Candy Corn', 1.5, 0.25))
+    # order.add(Candy('Gummy Bears', 0.25, 0.35))
+    # order.add(Cookie('Chocolate Chip', 6, 3.99))
+    # order.add(IceCream('Pistachio', 2, 0.79))
+    # order.add(Sundae('Vanilla', 3, 0.69, 'Hot Fudge', 1.29))
+    # order.add(Cookie('Oatmeal Raisin', 2, 3.45))
 
-        choice = input(
-            "\nWhat would you like to add to the order? (1-4, Enter for done): "
-        )
+    done: bool = False
+    # build the prompt string once
+    prompt = "\n".join(
+        [
+            "\n",
+            "1: Candy",
+            "2: Cookie",
+            "3: Ice Cream",
+            "4: Sundae",
+            "\nWhat would you like to add to the order? (1-4, Enter for done): ",
+        ]
+    )
 
-        if choice == "":
-            break
-        elif choice == "1":
-            item = shop.user_prompt_candy()
-            order.add(item)
-            print()
-        elif choice == "2":
-            item = shop.user_prompt_cookie()
-            order.add(item)
-            print()
-        elif choice == "3":
-            item = shop.user_prompt_icecream()
-            order.add(item)
-            print()
-        elif choice == "4":
-            item = shop.user_prompt_sundae()
-            order.add(item)
-            print()
-        else:
-            print("Invalid choice. Please enter 1-4 or press Enter to finish.")
-
-    # Print receipt at the end
+    while not done:
+        choice = input(prompt)
+        match choice:
+            case "":
+                done = True
+            case "1":
+                item = shop.user_prompt_candy()
+                order.add(item)
+                print(f"{item.name} has been added to your order.")
+            case "2":
+                item = shop.user_prompt_cookie()
+                order.add(item)
+                print(f"{item.name} has been added to your order.")
+            case "3":
+                item = shop.user_prompt_icecream()
+                order.add(item)
+                print(f"{item.name} has been added to your order.")
+            case "4":
+                item = shop.user_prompt_sundae()
+                order.add(item)
+                print(f"{item.name} has been added to your order.")
+            case _:
+                print(
+                    "Invalid response:  Please enter a choice from the menu (1-4) or Enter"
+                )
     print()
-    print_receipt(order)
+
+    # Print receipt using tabulate with order.to_list()
+    print(tabulate(order.to_list(), tablefmt="fancy_grid"))
 
 
 if __name__ == "__main__":
