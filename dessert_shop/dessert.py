@@ -2,12 +2,13 @@
 
 Abstract DessertItem hierarchy for Dessert Shop project.
 
-Part 8: This module implements an abstract base class `DessertItem` that
-inherits from the Packaging Protocol. The Order class implements the Payable
-Protocol to track payment methods. It has a `tax_percent` attribute and
-abstract `calculate_cost` method. Concrete subclasses implement cost
-calculation, set their packaging type, and inherit `calculate_tax` which
-computes tax from the cost and `tax_percent`.
+Part 9: This module implements an abstract base class `DessertItem` that
+inherits from the Packaging Protocol. DessertItem implements comparison
+operators to enable sorting by cost. The Order class implements the Payable
+Protocol to track payment methods and includes a sort() method. It has a
+`tax_percent` attribute and abstract `calculate_cost` method. Concrete
+subclasses implement cost calculation, set their packaging type, and inherit
+`calculate_tax` which computes tax from the cost and `tax_percent`.
 """
 
 from __future__ import annotations
@@ -51,6 +52,42 @@ class DessertItem(ABC, Packaging):
         tax_decimal = cost_decimal * (Decimal(str(self.tax_percent)) / Decimal("100"))
         tax_rounded = tax_decimal.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
         return float(tax_rounded)
+
+    def __eq__(self, other: object) -> bool:
+        """Check if two dessert items have equal cost."""
+        if not isinstance(other, DessertItem):
+            return NotImplemented
+        return self.calculate_cost() == other.calculate_cost()
+
+    def __ne__(self, other: object) -> bool:
+        """Check if two dessert items have different cost."""
+        if not isinstance(other, DessertItem):
+            return NotImplemented
+        return self.calculate_cost() != other.calculate_cost()
+
+    def __lt__(self, other: object) -> bool:
+        """Check if this item costs less than another."""
+        if not isinstance(other, DessertItem):
+            return NotImplemented
+        return self.calculate_cost() < other.calculate_cost()
+
+    def __le__(self, other: object) -> bool:
+        """Check if this item costs less than or equal to another."""
+        if not isinstance(other, DessertItem):
+            return NotImplemented
+        return self.calculate_cost() <= other.calculate_cost()
+
+    def __gt__(self, other: object) -> bool:
+        """Check if this item costs more than another."""
+        if not isinstance(other, DessertItem):
+            return NotImplemented
+        return self.calculate_cost() > other.calculate_cost()
+
+    def __ge__(self, other: object) -> bool:
+        """Check if this item costs more than or equal to another."""
+        if not isinstance(other, DessertItem):
+            return NotImplemented
+        return self.calculate_cost() >= other.calculate_cost()
 
 
 class Candy(DessertItem):
@@ -195,6 +232,10 @@ class Order(Payable):
         if not isinstance(payment_method, PayType):
             raise ValueError(f"Invalid payment type: {payment_method}")
         self._pay_type = payment_method
+
+    def sort(self) -> None:
+        """Sort the order items by cost in ascending order."""
+        self.order.sort()
 
     def __str__(self) -> str:
         """Return string representation of the order with header and items."""

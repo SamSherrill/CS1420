@@ -51,3 +51,22 @@ def test_order_get_invalid_payment():
     order._pay_type = "INVALID"  # type: ignore
     with pytest.raises(ValueError):
         order.get_pay_type()
+
+
+def test_order_sort():
+    """Test that Order.sort() sorts items by cost in ascending order."""
+    order = ds.Order()
+    # Add items in non-sorted order
+    order.add(ds.Sundae("Vanilla", 3, 0.69, "Hot Fudge", 1.29))  # cost = 3.36
+    order.add(ds.Candy("Candy Corn", 1.5, 0.25))  # cost = 0.38
+    order.add(ds.Cookie("Chocolate Chip", 6, 3.99))  # cost = 2.0
+    order.add(ds.IceCream("Pistachio", 2, 0.79))  # cost = 1.58
+
+    # Sort the order
+    order.sort()
+
+    # Verify items are in ascending order by cost
+    assert order.order[0].calculate_cost() == 0.38  # Candy
+    assert order.order[1].calculate_cost() == 1.58  # IceCream
+    assert order.order[2].calculate_cost() == 2.0  # Cookie
+    assert order.order[3].calculate_cost() == 3.36  # Sundae

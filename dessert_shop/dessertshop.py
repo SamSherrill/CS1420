@@ -1,6 +1,6 @@
 """Application driver for the Dessert Shop.
 
-Part 8: Adding payment method functionality with Payable Protocol.
+Part 9: Adding sorting functionality to order items by cost.
 """
 
 from __future__ import annotations
@@ -215,6 +215,9 @@ def main():
                     "Invalid response:  Please enter a choice from the menu (1-4) or Enter"
                 )
     print()
+
+    # Sort order by cost (ascending)
+    order.sort()
 
     # Prompt for payment method
     payment_type = shop.user_prompt_payment()

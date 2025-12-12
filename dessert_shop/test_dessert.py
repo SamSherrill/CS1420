@@ -128,3 +128,49 @@ def test_sundae_updated() -> None:
     assert s.price_per_scoop == 0.75
     assert s.topping_name == "Caramel"
     assert s.topping_price == 0.5
+
+
+def test_dessert_item_comparison_eq() -> None:
+    """Test == operator for dessert items."""
+    candy1 = ds.Candy("Candy1", 1.0, 2.0)  # cost = 2.0
+    candy2 = ds.Candy("Candy2", 1.0, 2.0)  # cost = 2.0
+    assert candy1 == candy2
+
+
+def test_dessert_item_comparison_ne() -> None:
+    """Test != operator for dessert items."""
+    candy1 = ds.Candy("Candy1", 1.0, 2.0)  # cost = 2.0
+    candy2 = ds.Candy("Candy2", 1.0, 3.0)  # cost = 3.0
+    assert candy1 != candy2
+
+
+def test_dessert_item_comparison_lt() -> None:
+    """Test < operator for dessert items."""
+    candy1 = ds.Candy("Candy1", 1.0, 2.0)  # cost = 2.0
+    candy2 = ds.Candy("Candy2", 1.0, 3.0)  # cost = 3.0
+    assert candy1 < candy2
+
+
+def test_dessert_item_comparison_le() -> None:
+    """Test <= operator for dessert items."""
+    candy1 = ds.Candy("Candy1", 1.0, 2.0)  # cost = 2.0
+    candy2 = ds.Candy("Candy2", 1.0, 3.0)  # cost = 3.0
+    candy3 = ds.Candy("Candy3", 1.0, 2.0)  # cost = 2.0
+    assert candy1 <= candy2
+    assert candy1 <= candy3
+
+
+def test_dessert_item_comparison_gt() -> None:
+    """Test > operator for dessert items."""
+    candy1 = ds.Candy("Candy1", 1.0, 3.0)  # cost = 3.0
+    candy2 = ds.Candy("Candy2", 1.0, 2.0)  # cost = 2.0
+    assert candy1 > candy2
+
+
+def test_dessert_item_comparison_ge() -> None:
+    """Test >= operator for dessert items."""
+    candy1 = ds.Candy("Candy1", 1.0, 3.0)  # cost = 3.0
+    candy2 = ds.Candy("Candy2", 1.0, 2.0)  # cost = 2.0
+    candy3 = ds.Candy("Candy3", 1.0, 3.0)  # cost = 3.0
+    assert candy1 >= candy2
+    assert candy1 >= candy3
